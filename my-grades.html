@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الدرجات</title>
+    <style>
+        body {
+            font-family: 'Arial Arabic', Tahoma, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background-color: white;
+        }
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 2px solid #eee;
+            transition: all 0.3s ease;
+        }
+        input {
+            width: 100px;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        .invalid {
+            border-color: #ff4444;
+            background-color: #ffe6e6;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        .results {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8fff9;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+        }
+        .result-item {
+            margin: 15px 0;
+            font-size: 18px;
+            color: #333;
+        }
+        .subject-details {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 25px;">حاسبة الدرجات</h2>
+        
+        <table>
+            <thead>
+                <tr style="background-color: #f8f9fa;">
+                    <th>المادة</th>
+                    <th>الفصل الأول (40)</th>
+                    <th>الفصل الثاني (60)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Subjects -->
+                <tr><td>التربية الاسلامية</td><td><input type="number" class="term1" max="40" step="0.1" placeholder="0-40"></td><td><input type="number" class="term2" max="60" step="0.1" placeholder="0-60"></td></tr>
+                <tr><td>اللغة العربية</td><td><input type="number" class="term1" max="40" step="0.1"></td><td><input type="number" class="term2" max="60" step="0.1"></td></tr>
+                <tr><td>اللغة الانجليزية</td><td><input type="number" class="term1" max="40" step="0.1"></td><td><input type="number" class="term2" max="60" step="0.1"></td></tr>
+                <tr><td>الرياضيات</td><td><input type="number" class="term1" max="40" step="0.1"></td><td><input type="number" class="term2" max="60" step="0.1"></td></tr>
+                <tr><td>الكيمياء</td><td><input type="number" class="term1" max="40" step="0.1"></td><td><input type="number" class="term2" max="60" step="0.1"></td></tr>
+                <tr><td>الأحياء</td><td><input type="number" class="term1" max="40" step="0.1"></td><td><input type="number" class="term2" max="60" step="0.1"></td></tr>
+                <tr><td>الفيزياء</td><td><input type="number" class="term1" max="40" step="0.1"></td><td><input type="number" class="term2" max="60" step="0.1"></td></tr>
+                <tr><td>المادة الاختيارية</td><td><input type="number" class="term1" max="40" step="0.1"></td><td><input type="number" class="term2" max="60" step="0.1"></td></tr>
+            </tbody>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="calculate()">احسب النتائج</button>
+            <button onclick="resetForm()" style="background-color: #607d8b; margin-right: 15px;">إعادة تعيين</button>
+        </div>
+
+        <div class="results" id="results" style="display: none;">
+            <div class="result-item">
+                <strong>نسبة الفصل الأول:</strong>
+                <span id="term1Percentage" style="color: #4CAF50;">0</span>%
+            </div>
+            <div class="result-item">
+                <strong>نسبة الفصل الثاني:</strong>
+                <span id="term2Percentage" style="color: #2196F3;">0</span>%
+            </div>
+            <div class="result-item">
+                <strong>المجموع الكلي:</strong>
+                <span id="totalPercentage" style="color: #9C27B0;">0</span>%
+            </div>
+
+            <div class="subject-details">
+                <h3 style="color: #666; margin-bottom: 15px;">تفاصيل المواد:</h3>
+                <div id="subjectBreakdown"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateInputs() {
+            let isValid = true;
+            document.querySelectorAll('input').forEach(input => {
+                const max = input.classList.contains('term1') ? 40 : 60;
+                if (input.value > max || input.value < 0) {
+                    input.classList.add('invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('invalid');
+                }
+            });
+            return isValid;
+        }
+
+        function calculate() {
+            if (!validateInputs()) {
+                alert('الرجاء التأكد من صحة القيم المدخلة');
+                return;
+            }
+
+            const term1Inputs = document.querySelectorAll('.term1');
+            const term2Inputs = document.querySelectorAll('.term2');
+            
+            let term1Total = 0, term2Total = 0;
+            let breakdownHTML = '<table style="width: 100%;">';
+            
+            term1Inputs.forEach((input, index) => {
+                const term1 = parseFloat(input.value) || 0;
+                const term2 = parseFloat(term2Inputs[index].value) || 0;
+                const subjectName = input.parentElement.parentElement.firstElementChild.textContent;
+                
+                const term1Percent = (term1 / 40 * 100).toFixed(2);
+                const term2Percent = (term2 / 60 * 100).toFixed(2);
+                const totalPercent = (term1 + term2).toFixed(2);
+
+                term1Total += term1;
+                term2Total += term2;
+
+                breakdownHTML += `
+                    <tr style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                        <td>${subjectName}</td>
+                        <td>${term1Percent}%</td>
+                        <td>${term2Percent}%</td>
+                        <td>${totalPercent}%</td>
+                    </tr>
+                `;
+            });
+
+            breakdownHTML += '</table>';
+
+            const term1Percentage = ((term1Total / (40*8)) * 100).toFixed(2);
+            const term2Percentage = ((term2Total / (60*8)) * 100).toFixed(2);
+            const totalPercentage = ((term1Total + term2Total) / (100*8) * 100).toFixed(2);
+
+            document.getElementById('term1Percentage').textContent = term1Percentage;
+            document.getElementById('term2Percentage').textContent = term2Percentage;
+            document.getElementById('totalPercentage').textContent = totalPercentage;
+            document.getElementById('subjectBreakdown').innerHTML = `
+                <table style="width: 100%; margin-top: 15px;">
+                    <tr style="background-color: #f8f9fa;">
+                        <th>المادة</th>
+                        <th>الفصل الأول</th>
+                        <th>الفصل الثاني</th>
+                        <th>المجموع</th>
+                    </tr>
+                    ${breakdownHTML}
+                </table>
+            `;
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function resetForm() {
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+                input.classList.remove('invalid');
+            });
+            document.getElementById('results').style.display = 'none';
+        }
+
+        // Add real-time validation
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                const max = this.classList.contains('term1') ? 40 : 60;
+                if (this.value > max) this.value = max;
+                if (this.value < 0) this.value = 0;
+                validateInputs();
+            });
+        });
+    </script>
+</body>
+</html>
